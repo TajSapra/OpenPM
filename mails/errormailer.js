@@ -1,6 +1,6 @@
 const nodeMailer=require('../config/nodemailer');
 const tokens=require('../tokens/tokens')
-exports.error=(otp)=>{
+exports.notify=(otp)=>{
     let Htmlstring= nodeMailer.renderTemplate({
         otp:otp,
         date:Date()

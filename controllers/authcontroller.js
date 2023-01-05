@@ -1,6 +1,7 @@
 const pool=require('../config/postgres')
 const bcrypt=require('bcrypt')
 const otpmailer=require('../mails/otpmailer')
+const login_checker=require('./services/login_checker')
 const errornotifier=require('../mails/errormailer')
 const e = require('express')
 const saltRounds=10
@@ -23,16 +24,29 @@ create_user=function(req, res){
 }
 check_user_generate_send_OTP=function(req, res){
     try{
-        const user_email=req.body.user_email
+        var option=login_checker(req,res)
+        if(option==0){
+            res.clearCookie('display_message')
+            res.cookie('display_message', 'Account does not exist. Please sign up first.')
+            return res.redirect('/logout')
+        }
+        else if(option==1||option ==3){
+            res.clearCookie('display_message')
+            res.cookie('display_message', 'Error logging in. Please contact the team')
+            return res.redirect('/logout')
+        }
+        else if(option==2){
+            res.clearCookie('display_message')
+            res.cookie('display_message', 'You are already logged in')
+            return res.redirect('/')
+        }
+        const user_email=req.body.User_email
         const query='SELECT * FROM users WHERE Email=$1'
         if(!req.xhr){
             return res.redirect('/auth/logout')
         }
         pool.query(query,[user_email]).then(result=>{        
             if(result.rows.length==0){
-                res.clearCookie('display_message')
-                res.cookie('display_message', 'Account does not exist. Please sign up first.')
-                return res.redirect('/back')
             }
             var otp=randomIntFromInterval(100000,999999)
             otpmailer.verify(user_email, otp)
@@ -44,25 +58,99 @@ check_user_generate_send_OTP=function(req, res){
         })
     }
     catch(err){
-        errornotifier(err)
+        // errornotifier(err)
         res.json({message:'Error in the action. Please try after some time'})
     }
 }
 signup_page=function(req,res){
+    var option=login_checker(req,res)
+    if(option==0){
+        res.clearCookie('display_message')
+        res.cookie('display_message', 'Account does not exist. Please sign up first.')
+        return res.redirect('/logout')
+    }
+    else if(option==1||option ==3){
+        res.clearCookie('display_message')
+        res.cookie('display_message', 'Error logging in. Please contact the team')
+        return res.redirect('/logout')
+    }
+    else if(option==2){
+        res.clearCookie('display_message')
+        res.cookie('display_message', 'You are already logged in')
+        return res.redirect('/')
+    }
     return res.render('Signup',{
         title:'Signup'
     })
 }
 login_page=function(req,res){
     // check for already loggedin users.
+    var option=login_checker(req,res)
+    if(option==0){
+        res.clearCookie('display_message')
+        res.cookie('display_message', 'Account does not exist. Please sign up first.')
+        return res.redirect('/logout')
+    }
+    else if(option==1||option ==3){
+        res.clearCookie('display_message')
+        res.cookie('display_message', 'Error logging in. Please contact the team')
+        return res.redirect('/logout')
+    }
+    else if(option==2){
+        res.clearCookie('display_message')
+        res.cookie('display_message', 'You are already logged in')
+        return res.redirect('/')
+    }
     return res.render('Login',{
         title:'Login'
     })
 }
-
+logout=function(req,res){ 
+    res.clearCookie('User_email')
+    res.clearCookie('User_key')
+    res.cookie('display_message', 'Successfully logged out')
+    return res.redirect('/')
+}
+verify_otp=function(req,res){
+    try{
+        if(!req.xhr){
+            return res.redirect('/auth/logout')
+        }
+        var option=login_checker(req,res)
+        if(option==0){
+            res.clearCookie('display_message')
+            res.cookie('display_message', 'Account does not exist. Please sign up first.')
+            return res.redirect('/logout')
+        }
+        else if(option==1||option ==3){
+            res.clearCookie('display_message')
+            res.cookie('display_message', 'Error logging in. Please contact the team')
+            return res.redirect('/logout')
+        }
+        else if(option==2){
+            res.clearCookie('display_message')
+            res.cookie('display_message', 'You are already logged in')
+            return res.redirect('/')
+        }
+        var submitted_otp=req.body.otp
+        var user_email=req.cookies.User_email
+        var query='Select * from users where Email=$1'
+        pool.query(query, [user_email]).then(results=>{
+            if(submitted_otp!=results.rows[0].OTP){
+                res.json({error:'Authentication Error. Wrong OTP'})
+            }
+            else{
+                res.json({success:'Logged In Successfully.'})
+            }
+        })
+    }
+    catch(err){
+        // errornotifier(err)
+        res.json({message:'Error in the action. Please try after some time'})
+    }
+}
 ////todo:
 //logout
-//create 3 functions 1 for already logged in and other for checkin secret==email and last one for error notification email sender and add try catch everywhere
 
 
 module.exports={create_user, check_user_generate_send_OTP,login_page, signup_page}
