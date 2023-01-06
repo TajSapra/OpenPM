@@ -6,6 +6,7 @@
     <title><%=locals.title%></title>
     <link rel="icon" href="/Logos/favicon.png" type="image/icon type">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <style>
         body{
             background-color: rgb(36,82,122);
@@ -21,13 +22,66 @@
             border-bottom: 1px solid rgb(93,172,189);
         }
         #page-content{
-            height: 90%;
+            height: 90vh;
+        }
+        a{
+            text-decoration: none;
+            color: rgb(93,172,189);
+            border: 1px solid rgb(93,172,189);
+            height: 4vh;
+            width: 6vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .signup-links:hover{
+            border: rgb(36,82,122) 1px solid;
+            color: rgb(36, 82, 122);
+            background-color: rgb(93,172,189);
         }
     </style>
 </head>
 <body>
     <div id="main">
         <header>
+            <div style="display: flex; justify-content: center; width: 15%;">
+                <div style="position: relative; left: 10%; z-index: -1;"> 
+                    <img src="/Logos/logo_noname.png" style="height: 10vh;">
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;"><b>OpenPM</b></div>    
+            </div>
+            <%if(login==false){%>
+                <div style="display: flex; justify-content: space-evenly; width: 15%; position: absolute; top: 3%; right: 4%;"> 
+                    <%if(title!="Login"){%>
+                        <a href="/auth/login" class="signup-links">
+                            <div class="link_container">
+                                Login
+                            </div>
+                        </a>
+                    <%}%>
+                    <%if(title!="Signup"){%>
+                        <a href="/auth/signup" class="signup-links">
+                            <div class="link_container">
+                                Signup
+                            </div>
+                        </a>
+                    <%}%>
+                </div>
+            <%}else{%>
+                <div style="display: flex; justify-content: space-evenly; width: 15%; position: absolute; top: 3%; right: 4%;"> 
+                    <a href="/app/projects" class="signup-links">
+                        <div class="link_container">
+                            Your Projects
+                        </div>
+                    </a>
+                    <a href="/profile" class="signup-links">
+                        <div class="link_container">
+                            Profile
+                        </div>
+                    </a>
+                </div>                
+            <%}%>
         </header>
         <%-body%>
         <footer>

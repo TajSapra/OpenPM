@@ -1,0 +1,40 @@
+<style>
+    input[type=email], input[type=text]{
+        border: none;
+        background-color: rgb(93,172,189);
+        color: rgb(36,82,122);
+        border-bottom: rgb(36,82,122) 1px solid;
+        text-align: center;
+    }
+    input[type=email]:focus-visible, input[type=text]:focus-visible{
+        outline: none;
+    }
+    input[type=submit]{
+        outline: none;
+        border: 1px solid rgb(36,82,122);
+        color: rgb(36,82,122);
+        background-color: rgb(93,172,189);
+        cursor: pointer;
+    }
+    input[type=submit]:hover{
+        color: rgb(93,172,189);
+        background-color: rgb(36,82,122);
+    }
+</style>
+<div id="page-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">    
+    <img src="/Logos/logo.png" style="height: 37%;">
+    <div style="background-color: rgb(93,172,189); height: 55%; width: 35%;border-radius: 25px; color: rgb(36,82,122); align-items: center; display: flex; flex-direction: column;">
+        <h1>Create new account</h1>      
+        <form action="/auth/create_user" method="post" id="formId">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <label for="User_email">Email</label>
+                <input type="email" required name="User_email" id="User_email"><br>
+                <label for="User_email">Name</label>
+                <input type="text" required name="User_name" id="User_name"><br>
+                <label for="User_org">Organisation</label>
+                <input type="text" required name="User_org" id="User_org"><br>
+                <input type="submit" id="submitButton">
+            </div>
+        </form>
+    </div>
+</div>

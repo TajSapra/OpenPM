@@ -9,21 +9,24 @@ function randomIntFromInterval(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 create_user=function(req, res){
-    pool.query('Select * from users where email=$1', [req.body.email]).then(result=>{        
+    console.log("Here2")
+    pool.query('Select * from users where mail=$1', [req.body.User_email]).then(result=>{        
         if(result.rows.length>0){
             res.cookie('display_message', 'User Account Already exists')
-            return res.redirect('/login')
+            return res.redirect('/auth/login')
         }
         else{
-            const hash=bcrypt.hashSync(req.body.email, saltRounds)
-            var userdata=[req.body.email, req.body.uname, hash, req.body.org]
-            pool.query('INSERT into users(Email, Username, User_id, Organisation) VALUES($1,$2,$3,$4)',userdata)
-            return res.redirect('/login')            
+            const hash=bcrypt.hashSync(req.body.User_email, saltRounds)
+            var userdata=[req.body.User_email, req.body.User_name, hash, req.body.User_org]
+            pool.query('INSERT into users(mail, username, user_secret, organisation) VALUES($1,$2,$3,$4)',userdata)
+            res.cookie('display_message', 'New Account Created')
+            return res.redirect('/auth/login')            
         }
     })
 }
 check_user_generate_send_OTP=function(req, res){
     try{
+        console.log("Here1", req.body)
         var option=login_checker(req,res)
         if(option==0){
             res.clearCookie('display_message')
@@ -41,16 +44,16 @@ check_user_generate_send_OTP=function(req, res){
             return res.redirect('/')
         }
         const user_email=req.body.User_email
-        const query='SELECT * FROM users WHERE Email=$1'
+        const query='SELECT * FROM users WHERE mail=$1'
+        console.log(req.xhr)
         if(!req.xhr){
-            return res.redirect('/auth/logout')
+            return res.redirect('/logout')
         }
         pool.query(query,[user_email]).then(result=>{        
-            if(result.rows.length==0){
-            }
             var otp=randomIntFromInterval(100000,999999)
-            otpmailer.verify(user_email, otp)
-            const query2='UPDATE users SET OTP=$1 WHERE Email=$2'
+            console.log("Here3", otp)
+            // otpmailer.verify(user_email, otp)
+            const query2='UPDATE users SET otp=$1 WHERE mail=$2'
             pool.query(query2, [otp, user_email]).then(result2=>{
                 res.cookie('User_email', user_email)
                 res.json({success : "Updated Successfully", status : 200})
@@ -80,7 +83,8 @@ signup_page=function(req,res){
         return res.redirect('/')
     }
     return res.render('Signup',{
-        title:'Signup'
+        title:'Signup',
+        login: false
     })
 }
 login_page=function(req,res){
@@ -102,7 +106,8 @@ login_page=function(req,res){
         return res.redirect('/')
     }
     return res.render('Login',{
-        title:'Login'
+        title:'Login',
+        login: false
     })
 }
 logout=function(req,res){ 
@@ -114,7 +119,7 @@ logout=function(req,res){
 verify_otp=function(req,res){
     try{
         if(!req.xhr){
-            return res.redirect('/auth/logout')
+            return res.redirect('/logout')
         }
         var option=login_checker(req,res)
         if(option==0){
@@ -133,24 +138,24 @@ verify_otp=function(req,res){
             return res.redirect('/')
         }
         var submitted_otp=req.body.otp
-        var user_email=req.cookies.User_email
-        var query='Select * from users where Email=$1'
+        var user_email=req.body.User_email
+        console.log(user_email, submitted_otp)
+        var query='Select * from users where mail=$1'
         pool.query(query, [user_email]).then(results=>{
-            if(submitted_otp!=results.rows[0].OTP){
+            console.log(submitted_otp, results.rows[0].otp,results.rows[0].otp==submitted_otp )
+            if(submitted_otp!=results.rows[0].otp){
                 res.json({error:'Authentication Error. Wrong OTP'})
             }
             else{
-                res.json({success:'Logged In Successfully.'})
+                res.json({success:'Logged In Successfully.', key:results.rows[0].user_secret})
             }
         })
     }
     catch(err){
         // errornotifier(err)
+        console.log(err)
         res.json({message:'Error in the action. Please try after some time'})
     }
 }
-////todo:
-//logout
 
-
-module.exports={create_user, check_user_generate_send_OTP,login_page, signup_page}
+module.exports={create_user, check_user_generate_send_OTP,login_page, signup_page, logout, verify_otp}
