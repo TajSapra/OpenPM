@@ -29,6 +29,18 @@
         right: 18%;
         margin-bottom: 11%;
     }
+    .project_list{
+        height: 15%; border: 1px solid rgb(93,172,189);
+    }
+    .project_name{
+        left: 7%; font-size: 160%; top: 12%; position: relative;
+    }
+    .project_time{
+        position: relative; top: 16%; left: 8%;
+    }
+    .project_icon{
+        position: relative; bottom: 37%; font-size: 150%; left: 90%;
+    }
 </style>
 <div id="page-content" style="display: flex">    
     <!-- split in 35:65 ratio left part showing list and right showing info about the project that can be fetched using ajax requests -->
@@ -41,10 +53,10 @@
         </div>
         <div style="height: 90%; display: flex; flex-direction: column;" id="displaylist">
             <%for(var ic=0;ic<user.projects.length;ic++){%>
-                <div style="height: 15%; border: 1px solid rgb(93,172,189);" class="project_list" id="<%=user.projects[ic]['ID']%>" onclick="clicker(this.id)">
-                    <div style="left: 7%; font-size: 160%; top: 12%; position: relative;"><%=user.projects[ic]["Name"]%></div>
-                    <div class="project_time" style="position: relative; top: 16%; left: 8%;"><%=user.projects[ic]["Time"]%></div>
-                    <div style="position: relative; bottom: 37%; font-size: 150%; left: 90%;">
+                <div class="project_list" id="<%=user.projects[ic]['ID']%>" onclick="clicker(this.id)">
+                    <div class="project_name"><%=user.projects[ic]["Name"]%></div>
+                    <div class="project_time"><%=user.projects[ic]["Time"]%></div>
+                    <div class="project_icon">
                         <i class="fas fa-chevron-right"></i>                    
                     </div>
                 </div>
@@ -65,6 +77,52 @@
     var list_data_save=document.getElementById('main-matter').innerHTML
     var form_HTML='\n            <div style="position: relative; top: -35%; font-size: 2.5vw; left: -10%;">Lets cook a new project for you.</div>\n            <form action="/app/create_new_project" method="POST" style="display: flex; flex-direction: column; width: 15vw;" id="formId">\n                <label for="project_name">Project Name</label>\n                <br>\n                <input type="text" name="project_name" id="project_name" required>\n                <br>\n                <label for="project_description">Project Description</label>\n                <br>\n                <input type="text" name="project_description" id="project_description" required>\n                <br>\n                <input type="submit" id="submitbttn" style="width: 33%; position: relative; left: 33%;">\n            </form>\n        '    
     var display=0;
+    function clicker(id){
+        if(display){
+            display=0
+            document.getElementById('add-btn').setAttribute("class", "fa-sharp fa-solid fa-plus fas fa-2x non-rotated")
+        }
+        var temper12345='\n            <div style="display: flex; flex-direction: column; position: relative; bottom: 15%;">\n                <div class="row_display">\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Name: <div id="Project_name"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Description: <div id="Project_desc"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Project Owner: <div id="Project_owner"></div>\n                    </div>\n                </div>\n                <div class="row_display">\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Team Size: <div id="Team_size"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Tasks: <div id="Tasks"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Created on: <div id="Creation_date"></div>\n                    </div>                \n    \n                </div>\n                <a href="" style="height: 7vh; width: 11vw;" id="ViewProject">\n                    <div style="font-size: 1.5vw;">View Project</div>\n                </a>\n    \n            </div>\n        '
+        document.getElementById('main-matter').innerHTML=temper12345
+        var url='/app/getproject_details'
+        var data={
+            'User_key':getCookie('User_key'),
+            'User_email':getCookie('User_email'),
+            'Project_id':id
+        }
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: data,
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data) {
+                document.getElementById('Heading-Display').innerText="Project Details:"
+                document.getElementById('Project_name').innerText=data.project_details.project_name
+                document.getElementById('Project_desc').innerText=data.project_details.project_desc
+                document.getElementById('Project_owner').innerText=data.project_details.project_owner
+                if(data.project_details.contributors==null){
+                    document.getElementById('Team_size').innerText=1
+                }
+                else{
+                    document.getElementById('Team_size').innerText=data.project_details.contributors.length+1
+                }
+                document.getElementById('Tasks').innerText=data.project_details.tasks.assigned.length+data.project_details.tasks.completed.length
+                var t2=new Date(data.project_details.starting_time)
+                var d2=t2.getDate()
+                var m2=t2.getMonth()+1
+                var y2=t2.getFullYear()
+                document.getElementById('ViewProject').setAttribute('href', '/app/view_project/'+data.project_details.project_id)
+                document.getElementById('Creation_date').innerText=d2+'/'+m2+'/'+y2
+                console.log(data)
+            },
+            error: function(data) {
+                console.log(data)
+            }
+        });
+    }
+
     button1.addEventListener('click', function(){
         if(display==0){
             console.log("Here1")
@@ -86,10 +144,34 @@
                     }, 
                     success:function(data){
                         if(data["success"]=="Updated Successfully"){
-                            // append child
-                            
+                            var node1=document.createElement('div')
+                            node1.setAttribute('class', 'project_name')
+                            node1.innerText=data.disp_data.Name
+
+                            var node2=document.createElement('div')
+                            node2.setAttribute('class', 'project_time')
+                            var tempd=new Date(data.disp_data.Date)
+                            var d3=tempd.getDate()
+                            var m3=tempd.getMonth()+1
+                            var y3=tempd.getFullYear()
+                            node2.innerText=d3.toString()+'/'+m3.toString()+'/'+y3.toString()
+
+                            var node3=document.createElement('div')
+                            node3.setAttribute('class', 'project_icon')
+                            node3.innerHTML='<i class="fas fa-chevron-right"></i>'
+                            var parentNode=document.createElement('div')
+                            parentNode.setAttribute('class', 'project_list')
+                            parentNode.setAttribute('id', data.disp_data.ID)
+                            parentNode.setAttribute('onclick',"clicker(this.id)")
+                            parentNode.appendChild(node1)
+                            parentNode.appendChild(node2)
+                            parentNode.appendChild(node3)
+                            console.log(node1, parentNode)
+
+                            document.getElementById("displaylist").appendChild(parentNode)
                         }
-                        console.log(data)
+                        document.getElementById('Heading-Display').innerText="Your Projects"
+                        document.getElementById('main-matter').innerHTML=list_data_save
                     }, error:function(data){
                         console.log(data)
                         alert("Some Error")
@@ -130,46 +212,5 @@
             }
         }
         return "";
-    }
-    function clicker(id){
-        var temper12345='\n            <div style="display: flex; flex-direction: column; position: relative; bottom: 15%;">\n                <div class="row_display">\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Name: <div id="Project_name"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Description: <div id="Project_desc"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Project Owner: <div id="Project_owner"></div>\n                    </div>\n                </div>\n                <div class="row_display">\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Team Size: <div id="Team_size"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Tasks: <div id="Tasks"></div>\n                    </div>\n                    <div style="font-size: 1.5vw; width: 20%;">\n                        Created on: <div id="Creation_date"></div>\n                    </div>                \n    \n                </div>\n                <a href="" style="height: 7vh; width: 11vw;" id="ViewProject">\n                    <div style="font-size: 1.5vw;">View Project</div>\n                </a>\n    \n            </div>\n        '
-        document.getElementById('main-matter').innerHTML=temper12345
-        var url='/app/getproject_details'
-        var data={
-            'User_key':getCookie('User_key'),
-            'User_email':getCookie('User_email'),
-            'Project_id':id
-        }
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: data,
-            xhrFields: {
-                withCredentials: true
-            },
-            success: function(data) {
-                document.getElementById('Heading-Display').innerText="Project Details:"
-                document.getElementById('Project_name').innerText=data.project_details.project_name
-                document.getElementById('Project_desc').innerText=data.project_details.project_desc
-                document.getElementById('Project_owner').innerText=data.project_details.project_owner
-                if(data.project_details.contributors==null){
-                    document.getElementById('Team_size').innerText=1
-                }
-                else{
-                    document.getElementById('Team_size').innerText=data.project_details.contributors.length+1
-                }
-                document.getElementById('Tasks').innerText=data.project_details.tasks.assigned.length+data.project_details.tasks.completed.length
-                var t2=new Date(data.project_details.starting_time)
-                var d2=t2.getDate()
-                var m2=t2.getMonth()+1
-                var y2=t2.getFullYear()
-                document.getElementById('ViewProject').setAttribute('href', '/app/view_project/'+data.project_details.project_id)
-                document.getElementById('Creation_date').innerText=d2+'/'+m2+'/'+y2
-                console.log(data)
-            },
-            error: function(data) {
-                console.log(data)
-            }
-        });
     }
 </script>

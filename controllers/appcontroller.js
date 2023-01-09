@@ -56,7 +56,7 @@ createnewproject=function(req,res){
             var data2=["Name:"+project_name+", ID:"+project_id+", Owner:"+user+", Time:"+time, user]
             var query2="Update users set projects = ARRAY_APPEND(projects, $1) where mail=$2"
             pool.query(query2, data2).then(results2=>{
-                res.json({success : "Updated Successfully", status : 200, disp_data:{"Name":project_name, "Date":time}})
+                res.json({success : "Updated Successfully", status : 200, disp_data:{"Name":project_name, "Date":time, "ID":project_id}})
             })
         })
     }
