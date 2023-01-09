@@ -11,8 +11,8 @@ profile_page=function(req,res){
         var query='Select sess from session where sid=$1'
         pool.query(query, [sess]).then(results=>{
             var req_json=results.rows[0]["sess"]["passport"]["user"]
-            res.cookie('User_email', req_json["mail"])
-            res.cookie('User_key', req_json["user_secret"])
+            res.cookie('User_email', req_json["mail"],{ maxAge: 30 * 24 * 60 * 60 * 1000 })
+            res.cookie('User_key', req_json["user_secret"], { maxAge: 30 * 24 * 60 * 60 * 1000 })
         })
     }
     console.log(req.cookies)

@@ -91,7 +91,7 @@ $(() => {
                 document.getElementById('formId').setAttribute("action", "/auth/verify_otp")
                 document.getElementById('input').value=''
                 if(flag && data["success"]=='Logged In Successfully.'){
-                    setCookie("User_key", data.key, 365)
+                    setCookie("User_key", data.key, 30)
                     setCookie("User_email", getCookie("User_email"), 365)
                     window.location.href='/dashboard'
                 }

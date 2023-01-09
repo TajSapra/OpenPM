@@ -112,7 +112,9 @@ login_page=function(req,res){
 logout=function(req,res){ 
     res.clearCookie('User_email')
     res.clearCookie('User_key')
+    res.clearCookie('loginsessions')
     res.cookie('display_message', 'Successfully logged out')
+    console.log("here" ,req.cookies)
     return res.redirect('/')
 }
 verify_otp=function(req,res){

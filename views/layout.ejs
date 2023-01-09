@@ -75,7 +75,7 @@
                             Your Projects
                         </div>
                     </a>
-                    <a href="/dashboard" class="signup-links">
+                    <a href="/dashboard" class="signup-links" id="link-12">
                             <div class="link_container" id="Temp1">
                                 Profile
                             </div>
@@ -88,7 +88,7 @@
             var title=document.getElementById("pagetitle").innerText
             if(title=="Dashboard"){
                 document.getElementById("Temp1").innerText="Logout"
-                document.getElementById("Temp1").setAttribute("href", "/logout")
+                document.getElementById("link-12").setAttribute("href", "/logout")
             }
         </script>
         <%-body%>
