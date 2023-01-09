@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%=locals.title%></title>
     <link rel="icon" href="/Logos/favicon.png" type="image/icon type">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <style>
         body{
             background-color: rgb(36,82,122);
@@ -29,7 +29,7 @@
             color: rgb(93,172,189);
             border: 1px solid rgb(93,172,189);
             height: 4vh;
-            width: 6vw;
+            width: 7vw;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -52,7 +52,7 @@
                 <div style="display: flex; flex-direction: column; justify-content: center;"><b>OpenPM</b></div>    
             </div>
             <%if(login==false){%>
-                <div style="display: flex; justify-content: space-evenly; width: 15%; position: absolute; top: 3%; right: 4%;"> 
+                <div style="display: flex; justify-content: space-evenly; width: 17%; position: absolute; top: 3%; right: 4%;"> 
                     <%if(title!="Login"){%>
                         <a href="/auth/login" class="signup-links">
                             <div class="link_container">
@@ -69,20 +69,28 @@
                     <%}%>
                 </div>
             <%}else{%>
-                <div style="display: flex; justify-content: space-evenly; width: 15%; position: absolute; top: 3%; right: 4%;"> 
+                <div style="display: flex; justify-content: space-evenly; width: 17%; position: absolute; top: 3%; right: 4%;"> 
                     <a href="/app/projects" class="signup-links">
                         <div class="link_container">
                             Your Projects
                         </div>
                     </a>
-                    <a href="/profile" class="signup-links">
-                        <div class="link_container">
-                            Profile
-                        </div>
-                    </a>
+                    <a href="/dashboard" class="signup-links">
+                            <div class="link_container" id="Temp1">
+                                Profile
+                            </div>
+                    </a>                    
                 </div>                
             <%}%>
         </header>
+        <div style="display: none;" id="pagetitle"><%=title%></div>
+        <script>
+            var title=document.getElementById("pagetitle").innerText
+            if(title=="Dashboard"){
+                document.getElementById("Temp1").innerText="Logout"
+                document.getElementById("Temp1").setAttribute("href", "/logout")
+            }
+        </script>
         <%-body%>
         <footer>
         </footer>

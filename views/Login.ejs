@@ -16,22 +16,29 @@
         background-color: rgb(93,172,189);
         cursor: pointer;
     }
-    input[type=submit]:hover{
-        color: rgb(93,172,189);
-        background-color: rgb(36,82,122);
-    }
 </style>
 <div id="page-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">    
-    <img src="/Logos/logo.png" style="height: 52%;">
-    <div style="background-color: rgb(93,172,189); height: 40%; width: 35%;border-radius: 25px; color: rgb(36,82,122); align-items: center; display: flex; flex-direction: column;">
+    <img src="/Logos/logo.png" style="height: 35%;">
+    <div style="height: 52%; width: 35%;border-radius: 25px; color:  rgb(93,172,189); align-items: center; display: flex; flex-direction: column; border: 1px solid rgb(93,172,189);">
         <h1>Login Details</h1>      
         <form action="/auth/check_user" method="post" id="formId">
-            <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="display: flex; flex-direction: column; align-items: left;">
                 <label for="input" id="Label">Email</label>
                 <input type="email" required name="User_email" id="input"><br>
-                <input type="submit" id="submitButton">
             </div>
+            <input type="submit" id="submitButton" style="position: relative; left: 34%;">
         </form>
+        <div>            
+            or use Google to log in:
+            <br>
+            <br>
+            <a href="/login/oauth/google/" style="height: 6vh; width: 15vw;">
+                <div style="display: flex;">
+                    <i class="fab fa-google"></i>
+                    <span>Sign In with Google</span>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 <script>
@@ -60,6 +67,9 @@ flag=0
 $(() => {
     $("#submitButton").click(function(ev) {
         ev.preventDefault()
+        if(document.getElementById("input").value==""){
+            return;
+        }
         var form = $("#formId");
         if(flag)
         var data=form.serialize()+'&User_email='+getCookie("User_email")
@@ -75,16 +85,14 @@ $(() => {
                 withCredentials: true
             },
             success: function(data) {
-                console.log(data["success"], data["key"])
                 document.getElementById('Label').innerText='OTP'
                 document.getElementById('input').setAttribute("name", "otp")
                 document.getElementById('input').setAttribute("type", "text")
                 document.getElementById('formId').setAttribute("action", "/auth/verify_otp")
                 document.getElementById('input').value=''
-                if(flag)
-                console.log(flag && data.success=='Logged In Successfully.')
                 if(flag && data["success"]=='Logged In Successfully.'){
                     setCookie("User_key", data.key, 365)
+                    setCookie("User_email", getCookie("User_email"), 365)
                     window.location.href='/dashboard'
                 }
                 else{
@@ -95,6 +103,7 @@ $(() => {
                 alert("some Error");
             }
         });
+        return false;
     });
 });
 </script>

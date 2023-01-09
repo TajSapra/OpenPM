@@ -9,7 +9,6 @@ function randomIntFromInterval(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 create_user=function(req, res){
-    console.log("Here2")
     pool.query('Select * from users where mail=$1', [req.body.User_email]).then(result=>{        
         if(result.rows.length>0){
             res.cookie('display_message', 'User Account Already exists')
@@ -26,8 +25,8 @@ create_user=function(req, res){
 }
 check_user_generate_send_OTP=function(req, res){
     try{
-        console.log("Here1", req.body)
-        var option=login_checker(req,res)
+        var option=login_checker(req)
+        console.log(option)
         if(option==0){
             res.clearCookie('display_message')
             res.cookie('display_message', 'Account does not exist. Please sign up first.')
@@ -45,14 +44,14 @@ check_user_generate_send_OTP=function(req, res){
         }
         const user_email=req.body.User_email
         const query='SELECT * FROM users WHERE mail=$1'
-        console.log(req.xhr)
-        if(!req.xhr){
-            return res.redirect('/logout')
-        }
+        // if(!req.xhr){
+        //     console.log("Here!!!")
+        //     return res.redirect('/logout')
+        // }
         pool.query(query,[user_email]).then(result=>{        
             var otp=randomIntFromInterval(100000,999999)
             console.log("Here3", otp)
-            // otpmailer.verify(user_email, otp)
+            otpmailer.verify(user_email, otp)
             const query2='UPDATE users SET otp=$1 WHERE mail=$2'
             pool.query(query2, [otp, user_email]).then(result2=>{
                 res.cookie('User_email', user_email)
@@ -66,7 +65,7 @@ check_user_generate_send_OTP=function(req, res){
     }
 }
 signup_page=function(req,res){
-    var option=login_checker(req,res)
+    var option=login_checker(req)
     if(option==0){
         res.clearCookie('display_message')
         res.cookie('display_message', 'Account does not exist. Please sign up first.')
@@ -89,7 +88,7 @@ signup_page=function(req,res){
 }
 login_page=function(req,res){
     // check for already loggedin users.
-    var option=login_checker(req,res)
+    var option=login_checker(req)
     if(option==0){
         res.clearCookie('display_message')
         res.cookie('display_message', 'Account does not exist. Please sign up first.')
@@ -121,7 +120,7 @@ verify_otp=function(req,res){
         if(!req.xhr){
             return res.redirect('/logout')
         }
-        var option=login_checker(req,res)
+        var option=login_checker(req)
         if(option==0){
             res.clearCookie('display_message')
             res.cookie('display_message', 'Account does not exist. Please sign up first.')

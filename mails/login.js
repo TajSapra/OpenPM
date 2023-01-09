@@ -1,19 +1,21 @@
 const nodeMailer=require('../config/nodemailer');
 const tokens=require('../tokens/tokens')
-exports.verify=(email, otp)=>{
+
+exports.login=(user)=>{
+    console.log(user)
     let Htmlstring= nodeMailer.renderTemplate({
-        emailid:email,
-        otp:otp,
+        user:user,
         date:Date()
-    }, '/emailotp.ejs');
+    }, '/loginmail.ejs');
     nodeMailer.transporter.sendMail({
         from:tokens.emailid,
-        to:email,
-        subject:"Email Verification OTP",
+        to:user.mail,
+        subject:"Log in alert",
         html:Htmlstring
     },function(err,info){
         if(err){
-            //console.log(err)
+            console.log(err)
         }
+        console.log(info)
     });
 }

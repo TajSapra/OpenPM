@@ -1,7 +1,7 @@
 const login_checker=require('./services/login_checker')
 homepage=function(req,res){
     try{
-        var option=login_checker(req.cookies)
+        var option=login_checker(req)
         res.cookie('display_message', 'Welcome to OpenPM')
         if(option==0){
             res.clearCookie('display_message')
