@@ -108,11 +108,17 @@
                 else{
                     document.getElementById('Team_size').innerText=data.project_details.contributors.length+1
                 }
-                document.getElementById('Tasks').innerText=data.project_details.tasks.assigned.length+data.project_details.tasks.completed.length
+                if(data.project_details.tasks==undefined){
+                    document.getElementById('Tasks').innerText=0
+                }
+                else{
+                    document.getElementById('Tasks').innerText=data.project_details.tasks.assigned.length+data.project_details.tasks.completed.length                    
+                }
                 var t2=new Date(data.project_details.starting_time)
                 var d2=t2.getDate()
                 var m2=t2.getMonth()+1
                 var y2=t2.getFullYear()
+                console.log('/app/view_project/'+data.project_details.project_id)
                 document.getElementById('ViewProject').setAttribute('href', '/app/view_project/'+data.project_details.project_id)
                 document.getElementById('Creation_date').innerText=d2+'/'+m2+'/'+y2
                 console.log(data)

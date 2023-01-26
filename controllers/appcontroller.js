@@ -87,6 +87,7 @@ viewproject=function(req,res){
     }
     pool.query('Select * from users where mail=$1',[req.cookies.User_email]).then(results=>{
         pool.query('Select * from projects where project_id=$1', [req.params.id]).then(results2=>{
+            console.log(results2.rows[0])
             return res.render('viewproject', {
                 user:results.rows[0],
                 project:results2.rows[0],
@@ -95,5 +96,30 @@ viewproject=function(req,res){
             })
         })
     })
+}
+createnewtask=function(req,res){
+    var option=login_checker(req)
+    if(option!=2){
+        res.json({error:"Please Log in"})
+    }
+    else{
+        try{
+            var time=new Date().getTime().toString()        
+            var task_id=idgen(req.body.description)
+            var task_desc=req.body.description
+            var task_name=req.body.task_name
+            var deadline=req.body.deadline
+            var project=req.body.project
+            var creation=time
+            pool.query('Insert Into tasks(task_id, task_description, deadline,project, created_on, task_name)', [task_id, task_desc, deadline, project, creation, task_name]).then(results=>{
+                pool.query("update projects set assigned_tasks=ARRAY_APPEND(assigned_tasks, $1) where project_name=$2", []).then(results2=>{
+                    res.json({success : "Updated Successfully", status : 200, disp_data:{Name:task_name, Deadline:deadline}})
+                })
+            })
+        }
+        catch(err){
+            res.json({message:'Error in the action. Please try after some time'})
+        }
+    }
 }
 module.exports={project_list, createnewproject,getproject_details, viewproject}
