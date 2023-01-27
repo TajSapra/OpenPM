@@ -48,10 +48,7 @@
 #Completed{
     width: 34%;
 }
-#Todo, #Assigned, #Completed{
-    display: flex;
-    flex-direction: column;
-}
+
 .task-dis-column{
     overflow: scroll;
     -ms-overflow-style: none;
@@ -60,7 +57,24 @@
 .task-dis-column::-webkit-scrollbar{
     display: none;
 }
+.todos{
+    margin-top: 4%;
+    margin-left: 5%;
+    height: 30%;
+    width: 90%;
+    border: 1px solid rgb(93,172,189);
+}
+.status{
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;         
+}
+.status::-webkit-scrollbar{
+    display: none;
+}
 </style>
+<div style="display: none;" id="Project_name"><%=project.project_name%></div>
+<div style="display: none;" id="Project_id"><%=project.project_id%></div>
 <div id="page-content" style="overflow: scroll;">    
     <div id="screen1">
         <div id="slider"></div>
@@ -76,35 +90,81 @@
                     <button style="position: relative; top: 25%; background-color: transparent; color: rgb(93,172,189); border: 1px solid rgb(93,172,189); cursor: pointer;" id="Auto_assign">Auto assign</button>
                 </div>
             </div>
-            <script>
-                function allowDrop(ev) {
-                    ev.preventDefault();
-                }
-                function drag(ev) {
-                    ev.dataTransfer.setData("text", ev.target.id);
-                }
-                function drop(ev) {
-                    ev.preventDefault();
-                    var data = ev.dataTransfer.getData("text");
-                    ev.target.appendChild(document.getElementById(data));
-                    // update using ajax request at server                                                                                                      
-                }                                
-            </script>
-            <div style="display: flex; border: 1px solid rgb(93,172,189); height: 100%; width: 100%;">
-                <div id="Todo">
+            <div style="display: flex; border: 1px solid rgb(93,172,189); height: 100%; width: 100%; scrollbar-width: none;">
+                <div id="Todo" class="status">
                     <div style="font-size: 150%; border-bottom: 1px solid; text-align: center;">Todo Tasks</div>
-                    <div id="tlist1" class="task-dis-column" ondrop="drop(event)" ondragover="allowDrop(event)" style="overflow: scroll; height: 95%;">
+                    <div class="todos" draggable="true">
+                        <!-- create form and use it in innerHTML -->
+                        <form action="/app/create_task" method="post" style="position: relative;top: 1%; display: flex; flex-direction: column; align-items: center; flex-wrap: wrap;">
+                            <input type="text" name="Task_name" id="Task_name">
+                            <textarea name="Description" id="Description" cols="19" rows="5"></textarea>
+                            <div style="display: flex; justify-content: space-evenly; width: 100%;">
+                                <input type="date" name="Deadline" id="Deadline" style="width: 66%;">
+                                <div class="project_icon">
+                                    <i class="fas fa-chevron-right"></i>                    
+                                </div>                                
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div id="Assigned">
+                <div id="Assigned" class="status">
                     <div style="font-size: 150%; border-bottom: 1px solid; text-align: center;">Assigned Tasks</div>
-                    <div id="tlist2" class="task-dis-column" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
                 </div>
-                <div id="Completed">
+                <div id="Completed" class="status">
                     <div style="font-size: 150%; border-bottom: 1px solid; text-align: center;">Completed Tasks</div>
-                    <div id="tlist3" class="task-dis-column" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
                 </div>
             </div>
+            <script>
+                document.getElementById('Create_task').addEventListener('click', function(){
+                    var newE=document.createElement('div')
+                    newE.setAttribute('class', 'todos')
+                    newE.setAttribute('draggable', 'true')
+                    newE.addEventListener('dragstart',dragstart)
+                    newE.addEventListener('dragend',dragend)
+                    newE.innerText="Hello"
+                    document.getElementById('Todo').insertBefore(newE, document.getElementById('Todo').children[1])
+                })
+                var drags=document.getElementsByClassName('todos')
+                var all_status=document.getElementsByClassName('status')
+                console.log(drags)
+                console.log(all_status)
+                let draggabletodo=null
+                for(var i=0;i<drags.length;i++){
+                    drags[i].addEventListener('dragstart',dragstart)
+                    drags[i].addEventListener('dragend',dragend)
+                }
+                for(var i=0;i<all_status.length;i++){
+                    all_status[i].addEventListener('dragover', dragover)
+                    all_status[i].addEventListener('dragenter', dragenter)
+                    all_status[i].addEventListener('dragleave', dragleave)
+                    all_status[i].addEventListener('drop', dragdrop)                    
+                }
+                function dragdrop(){
+                    this.appendChild(draggabletodo)
+                    console.log('Drag Drop');
+                }
+                function dragleave(){
+                    console.log('Drag Leave');
+                }
+                function dragenter(){
+                    console.log('Drag Enter');
+                }
+                function dragover(e){
+                    e.preventDefault();
+
+                    console.log('Drag Over');
+                }
+                function dragstart(){
+                    draggabletodo=this;
+                    console.log('Drag Start');
+                }
+                function dragend(){
+                    draggabletodo=null;
+                    console.log('Drag End')
+                }
+            </script>
+
         </div>
         <div id="Requirements">
             <h2></h2>
@@ -124,14 +184,3 @@
         <div id="Team Display"></div>
     </div>
 </div>
-<script>
-    document.getElementById('Create_task').addEventListener('click',function(){
-        var task_ele=document.createElement('div')
-        task_ele.setAttribute('class', 'taskbox')
-        task_ele.setAttribute('draggable', 'true')
-        task_ele.setAttribute('ondragstart', 'drag(event)')
-        task_ele.setAttribute('id', 'adoufgbsdogf')
-        document.getElementById('tlist1').appendChild(task_ele)
-        
-    })
-</script>
